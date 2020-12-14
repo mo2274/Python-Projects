@@ -1,11 +1,10 @@
 import pygame
 import sys
-from random import randint
 
 from ship import Ship
 from setting import Settings
 from bullet import Bullet
-from bombs import Bomb
+from aliens import Alien
 
 
 class AlienInvasion():
@@ -20,9 +19,8 @@ class AlienInvasion():
         pygame.display.set_caption("Aliens Invasion")
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
-        self.bombs = []
-        self.counter = 0
-        self.bomb_speed = 2
+        self.aliens = pygame.sprite.Group()
+        self._create_fleet()
 
     def _add_bulets(self):
         if len(self.bullets) < self.setting.num_of_bullets:
@@ -33,7 +31,9 @@ class AlienInvasion():
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.bullets.update()
-        # remove old bullets
+        self.remove_old_bullets()
+
+    def remove_old_bullets(self):
         for bullet in self.bullets.copy():
             if bullet.bullet_rect.bottom <= 0:
                 self.bullets.remove(bullet)
@@ -53,7 +53,7 @@ class AlienInvasion():
             self.ship.move_left = False
         elif event.key == pygame.K_RIGHT:
             self.ship.move_right = False
-          
+
     def _check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -63,30 +63,32 @@ class AlienInvasion():
             if event.type == pygame.KEYUP:
                 self._check_keyUp_events(event)
 
-    def _draw_bombs(self):
-        if self.counter % 40 == 0:
-            x = randint(0, 1300)
-            bomb = Bomb(x)
-            self.bombs.append(bomb)
-        self.counter += 1
+    def _create_fleet(self):
+        """ create a fleet of aliens """
+        alien = Alien(self)
+        alien_width = alien.rect.width
+        available_space_x = self.width - (2 * alien_width)
+        number_aliens_x = available_space_x // (2 * alien_width)
 
-    def _show_bombs(self):
-        for bomb in self.bombs:
-            pygame.draw.circle(self.screen, bomb.color, (bomb.x, bomb.y), bomb.raduis, bomb.thickness)
-            bomb.y += self.bomb_speed
+        for alien_number in range(number_aliens_x):
+            self._create_alien(alien_number)
+
+    def _create_alien(self, alien_number):
+        alien = Alien(self)
+        alien_width = alien.rect.width
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        self.aliens.add(alien)
 
     def _update_screen(self):
         self.screen.fill(self.background_color)
         self.ship.update()
         self.ship.blitme()
         self._show_bullets()
-        self._draw_bombs()
-        self._show_bombs()
+        self.aliens.draw(self.screen)
         pygame.display.flip()
 
     def run_game(self):
         while True:
             self._check_events()
             self._update_screen()
-
-                    
