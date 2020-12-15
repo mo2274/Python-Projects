@@ -7,7 +7,7 @@ class Ship2():
     """
     def __init__(self, ai_game):
         self.speed = 3
-        self.image = pygame.image.load('images/Ship3.bmp')
+        self.image = pygame.image.load('images/Ship33.bmp')
         self.image_rect = self.image.get_rect()
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()

@@ -1,25 +1,41 @@
 import pygame
-import sys
 from pygame.sprite import Sprite
 
 
 class Bullet(Sprite):
     def __init__(self, ai_game):
         super().__init__()
-        self.bullet_speed = 5
+        self.bullet_speed = ai_game.setting.bullet_speed
         self.bullet_width = 6
         self.bullet_height = 20
         self.bullet_color = (9, 60, 60)
         self.screen = ai_game.screen
-        self.bullet_rect = pygame.Rect(0, 0, self.bullet_width,
-                                       self.bullet_height)
-        self.bullet_rect.midtop = ai_game.ship.image_rect.midtop
-        self.y = float(self.bullet_rect.y)
+        self.rect = pygame.Rect(0, 0, self.bullet_width,
+                                self.bullet_height)
+        self.rect.midtop = ai_game.ship.image_rect.midtop
+       
+    def draw_bullet(self):
+        pygame.draw.rect(self.screen, self.bullet_color, self.rect)
+
+
+class Bullet_hroz(Bullet):
+    def __init__(self, ai_game):
+        super().__init__(ai_game)
+        self.rect.midright = ai_game.ship2.image_rect.midright
+        self.x = float(self.rect.x)
+
+    def update(self):
+        self.x += self.bullet_speed
+        self.rect.x = self.x
+
+
+class Bullet_vert(Bullet):
+    def __init__(self, ai_game):
+        super().__init__(ai_game)
+        self.rect.midtop = ai_game.ship.image_rect.midtop
+        self.y = float(self.rect.y)
 
     def update(self):
         self.y -= self.bullet_speed
-        self.bullet_rect.y = self.y
-
-    def draw_bullet(self):
-        pygame.draw.rect(self.screen, self.bullet_color, self.bullet_rect)
+        self.rect.y = self.y
 
