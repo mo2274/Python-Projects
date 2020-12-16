@@ -1,12 +1,13 @@
 import pygame
 import sys
 from random import randint
+from time import sleep
 
-from ship import Ship
 from setting import Settings
-from bullet import Bullet_hroz
+from bullet import Bullet_right, Bullet_left, Bullet_down, Bullet_up
 from aliens import Alien
-from ship2 import Ship2
+from ship2 import Ship
+from game_stats import GameStats
 
 
 class AlienInvasion():
@@ -20,81 +21,85 @@ class AlienInvasion():
         self.width = self.rect.width
         self.height = self.rect.height
         pygame.display.set_caption("Aliens Invasion")
-        self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
-        self.bullets2 = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
-        '''self._create_fleet()'''
-        self.ship2 = Ship2(self)
+        self.stats = GameStats(self)
+        self.ship = Ship(self)
         self.counter = 0
+        self.num_of_hits = 0
+        self.start = False
 
     def _add_bulets(self):
-        if len(self.bullets2) < self.setting.num_of_bullets:
-            '''
-            bullet = Bullet_vert(self)
-            self.bullets.add(bullet)
-            '''
-            bullet2 = Bullet_hroz(self)
-            self.bullets2.add(bullet2)
+        if len(self.bullets) < self.setting.num_of_bullets:
+            if self.ship.direction == 0:
+                bullet = Bullet_up(self)
+                self.bullets.add(bullet)
+            elif self.ship.direction == 1:
+                bullet = Bullet_right(self)
+                self.bullets.add(bullet)
+            elif self.ship.direction == 2:
+                bullet = Bullet_down(self)
+                self.bullets.add(bullet)
+            else:
+                bullet = Bullet_left(self)
+                self.bullets.add(bullet)
 
     def _show_bullets(self):
-        '''
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-        '''
-
-        for bullet2 in self.bullets2.sprites():
-            bullet2.draw_bullet()
-        self.bullets2.update()
-        '''self.bullets.update()'''
+        self.bullets.update()
         self.remove_old_bullets()
 
     def _check_for_collesions(self):
-        '''
-        pygame.sprite.groupcollide(self.bullets, self.aliens, False, True)'''
-        pygame.sprite.groupcollide(self.bullets2, self.aliens, True, True)
-        if not self.aliens:
+        pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+
+    def _ship_hit(self):
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            self.stats.ships_left -= 1
+            self.aliens.empty()
             self.bullets.empty()
-            '''self._create_fleet()'''
-            self.setting.alien_speed += 1.0
+            self.ship.center_ship()
+            sleep(0.5)
+        if self.stats.ships_left == 0:
+            self.stats.game_active = False
 
     def remove_old_bullets(self):
-        '''
         for bullet in self.bullets.copy():
-            if bullet.rect.bottom <= 0:
-                self.bullets.remove(bullet)
-        '''
-        for bullet in self.bullets2.copy():
             if bullet.rect.right > self.rect.right:
-                self.bullets2.remove(bullet)
+                self.bullets.remove(bullet)
+            elif bullet.rect.left < self.rect.left:
+                self.bullets.remove(bullet)
+            elif bullet.rect.top < self.rect.top:
+                self.bullets.remove(bullet)
+            elif bullet.rect.bottom > self.rect.bottom:
+                self.bullets.remove(bullet)
 
     def _check_keyDown_events(self, event):
         if event.key == pygame.K_LEFT:
             self.ship.move_left = True
-            self.ship2.move_left = True
         elif event.key == pygame.K_RIGHT:
             self.ship.move_right = True
-            self.ship2.move_right = True
         elif event.key == pygame.K_UP:
-            self.ship2.move_up = True
+            self.ship.move_up = True
         elif event.key == pygame.K_DOWN:
-            self.ship2.move_down = True
+            self.ship.move_down = True
         elif event.key == pygame.K_SPACE:
             self._add_bulets()
         elif event.key == pygame.K_q:
             sys.exit()
+        elif event.key == pygame.K_RETURN:
+            self.stats.game_active = True
+            self.start = True
 
     def _check_keyUp_events(self, event):
         if event.key == pygame.K_LEFT:
             self.ship.move_left = False
-            self.ship2.move_left = False
         elif event.key == pygame.K_RIGHT:
             self.ship.move_right = False
-            self.ship2.move_right = False
         elif event.key == pygame.K_UP:
-            self.ship2.move_up = False
+            self.ship.move_up = False
         elif event.key == pygame.K_DOWN:
-            self.ship2.move_down = False
+            self.ship.move_down = False
 
     def _check_events(self):
         for event in pygame.event.get():
@@ -167,24 +172,52 @@ class AlienInvasion():
 
     def _update_screen(self):
         self.screen.fill(self.background_color)
-        '''
         self.ship.update()
         self.ship.blitme()
-        '''
-        self.ship2.update()
-        self.ship2.blitme()
         self._show_bullets()
         self._create_alien2()
-        self._add_alien_to_the_screen()
         self.aliens.update()
-        '''
-        self._move_fleets()
-        '''
+        self._add_alien_to_the_screen()
         self._check_for_collesions()
-        self.aliens.draw(self.screen)
+        self._ship_hit()
         pygame.display.flip()
+
+    def _add_text(self, message1, message2):
+        self.screen.fill((0, 0, 0))
+        font = pygame.font.Font('freesansbold.ttf', 64)
+        text = font.render(message1, True, (255, 255, 225), (0, 0, 0))
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text2 = font.render(message2, True,
+                            (255, 255, 225), (0, 0, 0))
+        font = pygame.font.Font('freesansbold.ttf', 20)
+        text3 = font.render('PRESS (Q) TO QUIT', True,
+                            (255, 255, 225), (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (650, 300)
+        textRect2 = text2.get_rect()
+        textRect2.center = (650, 450)
+        textRect3 = text2.get_rect()
+        textRect3.center = (800, 600)
+        self.screen.blit(text, textRect)
+        self.screen.blit(text2, textRect2)
+        self.screen.blit(text3, textRect3)
+        pygame.display.flip()
+
+    def _game_over(self):
+        self._add_text('GAME OVER', 'PRESS ENTER TO PLAY AGAIN')
+
+    def _game_start(self):
+        self._add_text('WELCOME TO ALIENS GAME',
+                       'PRESS ENTER TO START THE GAME')
 
     def run_game(self):
         while True:
             self._check_events()
-            self._update_screen()
+            if not self.start:
+                self._game_start()
+            else:
+                if self.stats.game_active:
+                    self._update_screen()
+                else:
+                    self.stats.rest_stats()
+                    self._game_over()

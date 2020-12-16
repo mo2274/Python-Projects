@@ -1,7 +1,7 @@
 """ The ship.py fle contains the Ship class. The Ship class has an __init__()
 method, an update() method to manage the ship’s position, and a blitme()
 method to draw the ship to the screen. The image of the ship is stored in
-ship.bmp, which is in the images folder. 
+ship.bmp, which is in the images folder.
 """
 import pygame
 
@@ -33,4 +33,3 @@ class Ship():
         if self.move_left:
             if self.image_rect.left > self.screen_rect.left:
                 self.image_rect.x -= self.speed
-            
