@@ -13,7 +13,7 @@ class Settings():
         self.color = (255, 255, 255)
         self.num_of_bullets = 10
         self.bullet_speed = 5
-        self.alien_speed = 1
+        self.alien_speed = 0.5
         self.fleet_drop_speed = 10
         self.fleet_direction = 1
         self.rate_of_aliens = 200

@@ -8,6 +8,8 @@ from bullet import Bullet_right, Bullet_left, Bullet_down, Bullet_up
 from aliens import Alien
 from ship2 import Ship
 from game_stats import GameStats
+from button import Button
+from scoreboard import ScoreBoard
 
 
 class AlienInvasion():
@@ -24,13 +26,20 @@ class AlienInvasion():
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.stats = GameStats(self)
+        self.scoreboard = ScoreBoard(self)
         self.ship = Ship(self)
         self.counter = 0
-        self.num_of_hits = 0
+        self.counter2 = 0
         self.start = False
+        self.temp1 = 0
+        self.temp2 = 0
+        pygame.mouse.set_visible(False)
+        self.scoreboard.prep_ships()
+        self.bullet_sound = pygame.mixer.Sound(r"sounds\Gun+Empty.wav")
 
     def _add_bulets(self):
         if len(self.bullets) < self.setting.num_of_bullets:
+            pygame.mixer.Sound.play(self.bullet_sound)
             if self.ship.direction == 0:
                 bullet = Bullet_up(self)
                 self.bullets.add(bullet)
@@ -51,7 +60,11 @@ class AlienInvasion():
         self.remove_old_bullets()
 
     def _check_for_collesions(self):
-        pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        collision = pygame.sprite.groupcollide(self.bullets,
+                                               self.aliens, True, True)
+        if collision:
+            self.stats.score += len(collision.keys())
+            self.scoreboard.prep_score()
 
     def _ship_hit(self):
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
@@ -60,6 +73,7 @@ class AlienInvasion():
             self.bullets.empty()
             self.ship.center_ship()
             sleep(0.5)
+            self.scoreboard.prep_ships()
         if self.stats.ships_left == 0:
             self.stats.game_active = False
 
@@ -88,8 +102,8 @@ class AlienInvasion():
         elif event.key == pygame.K_q:
             sys.exit()
         elif event.key == pygame.K_RETURN:
-            self.stats.game_active = True
             self.start = True
+            self.stats.game_active = True
 
     def _check_keyUp_events(self, event):
         if event.key == pygame.K_LEFT:
@@ -180,44 +194,64 @@ class AlienInvasion():
         self._add_alien_to_the_screen()
         self._check_for_collesions()
         self._ship_hit()
+        self.scoreboard.show_score()
         pygame.display.flip()
 
-    def _add_text(self, message1, message2):
-        self.screen.fill((0, 0, 0))
-        font = pygame.font.Font('freesansbold.ttf', 64)
-        text = font.render(message1, True, (255, 255, 225), (0, 0, 0))
-        font = pygame.font.Font('freesansbold.ttf', 32)
-        text2 = font.render(message2, True,
-                            (255, 255, 225), (0, 0, 0))
-        font = pygame.font.Font('freesansbold.ttf', 20)
-        text3 = font.render('PRESS (Q) TO QUIT', True,
-                            (255, 255, 225), (0, 0, 0))
+    def _add_text(self, text, text_size, x, y, text_color, bg_color):
+        font = pygame.font.Font('freesansbold.ttf', text_size)
+        text = font.render(text, True, text_color, bg_color)
         textRect = text.get_rect()
-        textRect.center = (650, 300)
-        textRect2 = text2.get_rect()
-        textRect2.center = (650, 450)
-        textRect3 = text2.get_rect()
-        textRect3.center = (800, 600)
+        textRect.center = (x, y)
         self.screen.blit(text, textRect)
-        self.screen.blit(text2, textRect2)
-        self.screen.blit(text3, textRect3)
-        pygame.display.flip()
-
-    def _game_over(self):
-        self._add_text('GAME OVER', 'PRESS ENTER TO PLAY AGAIN')
 
     def _game_start(self):
-        self._add_text('WELCOME TO ALIENS GAME',
-                       'PRESS ENTER TO START THE GAME')
+        self.screen.fill((0, 0, 0))
+        self._add_text('WELCOME TO ALIENS GAME', 64, 680, 300,
+                       (255, 255, 225), (0, 0, 0))
+        self._add_text('PRESS ( ENTER ) TO START THE GAME', 32, 700, 400,
+                       (255, 255, 225), (0, 0, 0))
+        self._add_text('PRESS (Q) TO QUIT', 20, 680, 500, (255, 255, 225),
+                       (0, 0, 0))
+        pygame.display.flip()
+        self.stats.rest_stats()
+
+    def _game_over(self):
+        self.screen.fill((0, 0, 0))
+        self._add_text('GAME OVER', 64, 680, 200,
+                       (255, 255, 225), (0, 0, 0))
+        score = str(self.stats.score)
+        self._add_text('Your Score ' + score, 20, 690, 260,
+                       (255, 255, 225), (0, 0, 0))
+        self.stats.update_high_score()
+        high_score = str(self.stats.high_score)
+        self._add_text('High Score ' + high_score, 20, 690, 300,
+                       (255, 255, 225), (0, 0, 0))
+        self._add_text('PRESS ( ENTER ) TO PLAY AGAIN', 32, 700, 450,
+                       (255, 255, 225), (0, 0, 0))
+        self._add_text('PRESS (Q) TO QUIT', 20, 700, 500, (255, 255, 225),
+                       (0, 0, 0))
+        pygame.display.flip()
+        self.aliens.empty()
+        self.bullets.empty()
 
     def run_game(self):
         while True:
             self._check_events()
             if not self.start:
-                self._game_start()
+                if self.temp1 == 0:
+                    self._game_start()
+                    self.temp1 = 1
             else:
                 if self.stats.game_active:
+                    self.temp2 = 0
                     self._update_screen()
+                    self.counter2 += 1
+                    if self.counter2 % 2000 == 0:
+                        self.setting.alien_speed += 0.2
                 else:
-                    self.stats.rest_stats()
-                    self._game_over()
+                    if self.temp2 == 0:
+                        self._game_over()
+                        self.stats.rest_stats()
+                        self.scoreboard.prep_score()
+                        self.scoreboard.prep_ships()
+                        self.temp2 += 1

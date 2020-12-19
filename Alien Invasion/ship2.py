@@ -1,15 +1,17 @@
 import pygame
+from pygame.sprite import Sprite
 
 
-class Ship():
+class Ship(Sprite):
     """
     docstring
     """
     def __init__(self, ai_game):
+        super().__init__()
         self.speed = 3
         self.ships = ['images/Ship1.bmp', 'images/Ship2.bmp',
                       'images/Ship3.bmp', 'images/Ship4.bmp']
-        self.image = pygame.image.load(self.ships[1])
+        self.image = pygame.image.load(self.ships[0])
         self.rect = self.image.get_rect()
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
@@ -45,3 +47,7 @@ class Ship():
     def center_ship(self):
         """Center the ship on the screen."""
         self.rect.midbottom = self.screen_rect.midbottom
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
+        
