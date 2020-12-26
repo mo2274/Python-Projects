@@ -8,7 +8,6 @@ from bullet import Bullet_right, Bullet_left, Bullet_down, Bullet_up
 from aliens import Alien
 from ship2 import Ship
 from game_stats import GameStats
-from button import Button
 from scoreboard import ScoreBoard
 
 
