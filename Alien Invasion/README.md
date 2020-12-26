@@ -8,3 +8,4 @@ after some time the alien will become faster and the game will become harder.
 # Dependencies:
 you will need Python 3.8.1 and pygame 2.0.0
 
+After installation of pygame just run python app.py
