@@ -11,7 +11,7 @@
         <p> pizzas </p>
         <ul>
             {% for pizza in pizzas %}
-            <li> {{ pizza }} </li>
+            <li> <a href=" {% url 'pizza_app:pizza' pizza.id %}"> {{ pizza }} </a> </li>
             {% empty %}
             <li> no pizzas </li>
             {% endfor %}
