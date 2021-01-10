@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends 'blogpost/base.html'%}
+    {% block content %}
+        <form action="{% url 'blogpost:edit_post' post.id %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button name="submit"> Save changes </button>
+        </form>
+    {% endblock content %}
+    
+</body>
+</html>

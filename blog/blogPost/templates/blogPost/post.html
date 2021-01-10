@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends 'blogpost/base.html'%}
+    {% block content %}
+        <p> <a href="{% url 'blogpost:edit_post' post.id %}">Edit post</a> </p>
+        <p> <a href="{% url 'blogpost:delete_post' post.id %}">Delete post</a> </p>
+        <h1> {{ post.title }}</h1>
+        <p> {{ post.text }}</p>
+    {% endblock content %}
+    
+</body>
+</html>

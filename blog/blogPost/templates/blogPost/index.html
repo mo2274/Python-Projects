@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends 'blogpost/base.html'%}
+    {% block content %}
+        <p> <a href="{% url 'blogpost:new_post' %}">Add new post</a> </p>
+        <ul>
+            {% for post in posts %}
+                <li>
+                    <p>{{ post.date_added|date:'M d, Y H:i'}}</p>
+                    <p>{{ post.title|linebreaks }}</p>
+                    <p> <a href="{% url 'blogpost:post' post.id %}">View post</a> </p>
+                    <p> <a href="{% url 'blogpost:edit_post' post.id %}">Edit post</a> </p>
+                    <p> <a href="{% url 'blogpost:delete_post' post.id %}">Delete post</a> </p>
+                </li>
+            {% empty %}
+                <p>no blog posts yet</p>
+            {% endfor %}
+        </ul>
+
+    {% endblock content %}
+</body>
+</html>
