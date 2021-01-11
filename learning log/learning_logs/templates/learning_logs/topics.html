@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
 <body>
     {% extends "learning_logs/base.html" %}
+
+    {% block page_header %}
+        <h1>Topics</h1>
+    {% endblock page_header %}
+
     {% block content %}
-    <p>Topics</p>
-    <a href="{% url 'learning_logs:new_topic' %}">Add new topic</a>
     <ul>
         {% for topic in topics %}
         <li>
-            <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
+           <h5> <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a> </h5>
         </li>
         {% empty %}
-        <li>No topics have been added yet</li>
+           <h6> <li>No topics have been added yet</li> </h6>
         {% endfor%}
     </ul>
+    <h6> <a href="{% url 'learning_logs:new_topic' %}">Add new topic</a> </h6>
     {% endblock content %}
 </body>
 </html>
