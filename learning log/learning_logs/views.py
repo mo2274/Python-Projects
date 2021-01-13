@@ -4,6 +4,8 @@ from .forms import TopicForm, EntryForm
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 
+template_name = r"learning_logs\index.html"
+
 
 def index(request):
     """ the home page for learning log """
