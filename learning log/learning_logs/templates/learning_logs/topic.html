@@ -5,6 +5,11 @@
 
     {% block page_header %}
         <h3>{{ topic }}</h3>
+        <small>
+            <a href="{% url 'learning_logs:delete_topic' topic.id %}">
+                Delete topic
+            </a>
+        </small>
     {% endblock page_header %}
 
     {% block content %}
@@ -16,8 +21,14 @@
             <h6 class="card-header">
                 {{ entry.date_add|date:'M d, Y H:i' }}
                 <small>
-                    <a href="{% url 'learning_logs:edit_entry' entry.id %}">
-                        Edit entry
+                    <a class="btn btn-sm btn-primary" role="button" href="{% url 'learning_logs:edit_entry' entry.id %}">
+                          Edit entry
+                    </a>
+                </small>
+                <span>-</span>
+                <small>
+                    <a class="btn btn-sm btn-primary" role="button" href="{% url 'learning_logs:delete_entry' entry.id %}">
+                        Delete entry
                     </a>
                 </small>
             </h6>
